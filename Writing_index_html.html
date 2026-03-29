@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f7f9fa;
+      --surface: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #0f172a;
+      --primary-hover: #334155;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --radius: 12px;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --surface: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --accent: #60a5fa;
+    }
+
+    body { font-family: 'Inter', sans-serif; margin: 0; padding: 3rem 1rem; background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+
+    .app-container { max-width: 900px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+
+    header { padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    header h1 { margin: 0; font-size: 1.8rem; font-weight: 600; outline: none; }
+    .header-buttons { display: flex; gap: 10px; align-items: center; }
+
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 500; font-family: 'Inter', sans-serif; font-size: 0.9rem; transition: all 0.2s ease; }
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-secondary { background-color: transparent; color: var(--text-main); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: var(--border); }
+    .btn-icon { background: transparent; font-size: 1.2rem; padding: 0.4rem; border: 1px solid transparent; }
+    .btn-icon:hover { background: var(--border); border-radius: 50%; }
+
+    .admin-footer { padding: 1rem 2.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface); }
+    .btn-admin { background: transparent; color: var(--text-muted); font-size: 0.85rem; opacity: 0.6; padding: 5px 10px; }
+    .btn-admin:hover { opacity: 1; color: var(--text-main); background: var(--border); }
+
+    #toolbar { background-color: var(--surface); padding: 12px 2.5rem; display: flex; gap: 20px; align-items: center; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .toolbar-group { display: flex; gap: 8px; align-items: center; border-right: 1px solid var(--border); padding-right: 20px; }
+    .toolbar-group:last-child { border-right: none; }
+    #toolbar button, #toolbar select { padding: 6px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
+    #toolbar button:hover, #toolbar select:hover { background: var(--border); }
+
+    nav { padding: 0 2.5rem; display: flex; gap: 5px; border-bottom: 1px solid var(--border); background: var(--surface); flex-wrap: nowrap; overflow-x: auto; }
+    .tab-link { background-color: transparent; padding: 1rem 1.5rem; border-radius: 8px 8px 0 0; color: var(--text-muted); font-size: 0.95rem; white-space: nowrap; transition: background-color 0.2s; }
+    .tab-link:hover { color: var(--text-main); }
+    .tab-link.active { background-color: var(--bg-color); color: var(--text-main); border: 1px solid var(--border); border-bottom: 1px solid var(--bg-color); margin-bottom: -1px; font-weight: 500; }
+    #addTabBtn { color: var(--accent); padding: 1rem; display: none; white-space: nowrap; }
+    #addTabBtn:hover { text-decoration: underline; background: transparent; }
+
+    .tab-link.dragging { opacity: 0.4; background-color: var(--border); transform: scale(0.95); }
+
+    main { padding: 3rem 2.5rem; min-height: 400px; background: var(--bg-color); }
+    .tab-content { display: none; animation: fade 0.3s ease; line-height: 1.7; font-size: 1.05rem; }
+    .tab-content h2 { margin-top: 0; font-size: 2rem; font-weight: 600; }
+    .tab-content a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    .tab-content img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); }
+
+    .editable { border: 2px dashed #93c5fd; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; outline: none; transition: all 0.2s; }
+    .editable:focus { border-color: var(--accent); background: var(--surface); }
+    #siteTitle.editable { border: 2px dashed #93c5fd; padding: 5px 10px; border-radius: 6px; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: var(--surface); padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid var(--border); }
+    .modal-box h3 { margin: 0 0 1.5rem 0; font-weight: 600; color: var(--text-main); }
+    .modal-input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+    .modal-input-group label { color: var(--text-muted); font-size: 0.9rem; }
+    .modal-input-group input, .modal-input-group select { background: var(--bg-color); color: var(--text-main); padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+    .modal-input-group input:focus, .modal-input-group select:focus { border-color: var(--accent); outline: none; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; }
+
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .app-container.force-mobile { max-width: 375px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 8px solid var(--border); }
+    .app-container.force-mobile header { flex-direction: column; gap: 15px; text-align: center; }
+    .app-container.force-mobile #toolbar { flex-direction: column; padding: 15px; }
+    .app-container.force-mobile .toolbar-group { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 10px; padding-right: 0; justify-content: center; width: 100%; flex-wrap: wrap; }
+    .app-container.force-mobile .toolbar-group:last-child { border-bottom: none; }
+    .app-container.force-mobile nav { padding: 0 10px; }
+    .app-container.force-mobile main { padding: 2rem 1.5rem; }
+    .app-container.force-mobile .admin-footer { flex-direction: column; align-items: center; }
+
+    @media (max-width: 768px) {
+      body { padding: 0; }
+      .app-container { border-radius: 0; border: none; min-height: 100vh; max-width: 100%; }
+      header { flex-direction: column; gap: 15px; padding: 1.5rem; text-align: center; }
+      #toolbar { flex-direction: column; padding: 15px; }
+      .toolbar-group { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 10px; padding-right: 0; justify-content: center; width: 100%; flex-wrap: wrap; }
+      .toolbar-group:last-child { border-bottom: none; }
+      nav { padding: 0 10px; }
+      main { padding: 2rem 1.5rem; }
+      .admin-footer { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <header>
+    <h1 id="siteTitle">My Portfolio</h1>
+    <div class="header-buttons">
+      <button id="viewToggleBtn" onclick="toggleView()" class="btn-icon" title="Toggle Phone View">📱</button>
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="btn-icon" title="Toggle Dark Mode">🌙</button>
+    </div>
+  </header>
+
+  <div id="toolbar" style="display: none;">
+    <div class="toolbar-group">
+      <button onclick="formatText('bold')" title="Bold"><b>B</b></button>
+      <button onclick="formatText('italic')" title="Italic"><i>I</i></button>
+      <button onclick="formatText('underline')" title="Underline"><u>U</u></button>
+    </div>
+    <div class="toolbar-group">
+      <select onchange="formatTextWithArg('fontName', this.value); this.selectedIndex=0;">
+        <option value="">Font...</option>
+        <option value="Inter">Inter</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+      </select>
+      <select onchange="formatTextWithArg('fontSize', this.value); this.selectedIndex=0;">
+        <option value="">Size...</option>
+        <option value="2">Small</option>
+        <option value="3">Normal</option>
+        <option value="5">Large</option>
+        <option value="6">Huge</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button onclick="triggerLinkModal()">🔗 Link</button>
+      <button onclick="triggerImageModal()">🖼️ Image</button>
+      <button onclick="triggerButtonModal()">🎯 Button</button>
+    </div>
+  </div>
+
+  <nav id="tabNav">
+    <button class="tab-link active" onclick="openTab(event, 'About')">About Me</button>
+    <button class="tab-link" onclick="openTab(event, 'Projects')">Projects</button>
+    <button id="addTabBtn" onclick="triggerAddTabModal()">+ Add Tab</button>
+  </nav>
+
+  <main id="contentArea">
+    <div id="About" class="tab-content" style="display: block;">
+      <h2>About Me</h2>
+      <p>Welcome to my minimalist portfolio. Enter edit mode to drag and drop these tabs into any order you want!</p>
+    </div>
+    <div id="Projects" class="tab-content">
+      <h2>My Projects</h2>
+      <p>Everything is modular. Add tabs, link between them, embed images, and create custom buttons!</p>
+    </div>
+  </main>
+
+  <footer class="admin-footer">
+    <button id="saveBtn" onclick="saveWebsite()" style="display:none;" class="btn-primary">💾 Save</button>
+    <button id="editToggleBtn" onclick="toggleEditMode()" class="btn-admin">Enter Edit Mode</button>
+  </footer>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" style="display: none;">
+  <div class="modal-box">
+    <h3 id="modalTitle">Modal Title</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button id="modalCancel" class="btn-secondary">Cancel</button>
+      <button id="modalConfirm" class="btn-primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6y2nlamo8gZSypIF9Uj9PoD8INOhbSr4",
+    authDomain: "typing-game-d944b.firebaseapp.com",
+    databaseURL: "https://typing-game-d944b-default-rtdb.firebaseio.com",
+    projectId: "typing-game-d944b",
+    storageBucket: "typing-game-d944b.firebasestorage.app",
+    messagingSenderId: "659907495772",
+    appId: "1:659907495772:web:515adb8c658ae193a6e399"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  let isEditMode = false;
+
+  window.onload = async function() {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.getElementById('themeToggleBtn').innerText = '☀️';
+    }
+    document.getElementById('siteTitle').innerText = "Loading...";
+    try {
+      const snapshot = await get(child(ref(db), `portfolioData`));
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        document.getElementById('contentArea').innerHTML = data.content;
+        document.getElementById('tabNav').innerHTML = data.nav;
+        document.getElementById('siteTitle').innerText = data.title;
+      } else {
+        document.getElementById('siteTitle').innerText = "My Portfolio";
+      }
+    } catch (error) {
+      document.getElementById('siteTitle').innerText = "My Portfolio";
+    }
+    disableEditMode();
+  };
+
+  function toggleTheme() {
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggleBtn');
+    if (root.getAttribute('data-theme') === 'dark') {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      btn.innerText = '🌙';
+    } else {
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      btn.innerText = '☀️';
+    }
+  }
+
+  function toggleView() {
+    const container = document.querySelector('.app-container');
+    const btn = document.getElementById('viewToggleBtn');
+    container.classList.toggle('force-mobile');
+    if (container.classList.contains('force-mobile')) {
+      btn.innerText = '💻';
+      btn.title = "Switch to Desktop View";
+    } else {
+      btn.innerText = '📱';
+      btn.title = "Switch to Phone View";
+    }
+  }
+
+  function saveWebsite() {
+    const content = document.getElementById('contentArea').innerHTML;
+    const nav = document.getElementById('tabNav').innerHTML;
+    const title = document.getElementById('siteTitle').innerText;
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.innerText = "⏳...";
+    set(ref(db, 'portfolioData'), { content, nav, title })
+      .then(() => { saveBtn.innerText = "💾 Save"; showMessage("Success", "Website saved to the cloud successfully!"); })
+      .catch((error) => { saveBtn.innerText = "💾 Save"; showMessage("Error", "Failed to save: " + error.message); });
+  }
+
+  function openModal(title, inputs, onConfirm) {
+    const overlay = document.getElementById('modalOverlay');
+    document.getElementById('modalTitle').innerText = title;
+    const body = document.getElementById('modalBody');
+    body.innerHTML = '';
+    const inputElements = [];
+
+    inputs.forEach(field => {
+      const group = document.createElement('div');
+      group.className = 'modal-input-group';
+      const label = document.createElement('label');
+      label.innerText = field.label;
+      let input;
+      if (field.type === 'select') {
+        input = document.createElement('select');
+        field.options.forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.innerText = opt.text; input.appendChild(o); });
+        input.id = field.id; group.appendChild(label); group.appendChild(input);
+      } else if (field.type === 'checkbox') {
+        input = document.createElement('input'); input.type = 'checkbox';
+        group.style.flexDirection = 'row'; group.style.alignItems = 'center'; group.style.gap = '10px';
+        input.id = field.id; group.appendChild(input); group.appendChild(label);
+      } else {
+        input = document.createElement('input'); input.type = field.type || 'text';
+        input.placeholder = field.placeholder || ''; input.value = field.value || '';
+        input.id = field.id; group.appendChild(label); group.appendChild(input);
+      }
+      body.appendChild(group); inputElements.push(input);
+    });
+
+    overlay.style.display = 'flex';
+    if (inputElements.length > 0) inputElements[0].focus();
+
+    document.getElementById('modalConfirm').onclick = () => {
+      const results = {};
+      inputElements.forEach(el => { results[el.id] = el.type === 'checkbox' ? el.checked : el.value; });
+      overlay.style.display = 'none'; onConfirm(results);
+    };
+    document.getElementById('modalCancel').onclick = () => { overlay.style.display = 'none'; };
+  }
+
+  function showMessage(title, message) {
+    openModal(title, [{ id: 'msg', type: 'text', label: message, value: '' }], () => {});
+    document.querySelector('.modal-input-group input').style.display = 'none';
+  }
+
+  async function toggleEditMode() {
+    if (!isEditMode) {
+      let actualPassword = "092009";
+      try {
+        const passSnapshot = await get(child(ref(db), `adminConfig/password`));
+        if (passSnapshot.exists()) actualPassword = passSnapshot.val();
+        else await set(ref(db, 'adminConfig/password'), "092009");
+      } catch (e) {}
+      openModal("Enter Edit Mode", [{ id: 'pwd', type: 'password', label: 'Admin Password' }], (data) => {
+        if (data.pwd === actualPassword) enableEditMode();
+        else showMessage("Access Denied", "Incorrect password.");
+      });
+    } else { disableEditMode(); saveWebsite(); }
+  }
+
+  function enableEditMode() {
+    isEditMode = true;
+    const editBtn = document.getElementById('editToggleBtn');
+    editBtn.innerText = "Lock & Save"; editBtn.classList.replace('btn-admin', 'btn-primary');
+    document.getElementById('saveBtn').style.display = "inline-block";
+    document.getElementById('addTabBtn').style.display = "inline-block";
+    document.getElementById('toolbar').style.display = "flex";
+    document.getElementById('siteTitle').contentEditable = "true";
+    document.getElementById('siteTitle').classList.add('editable');
+    document.querySelectorAll('.tab-content').forEach(c => { c.contentEditable = "true"; c.classList.add('editable'); });
+    const nav = document.getElementById('tabNav');
+    nav.querySelectorAll('.tab-link:not(#addTabBtn)').forEach(tab => {
+      tab.draggable = true;
+      tab.ondragstart = (e) => { e.target.classList.add('dragging'); };
+      tab.ondragend = (e) => { e.target.classList.remove('dragging'); };
+    });
+    nav.ondragover = (e) => {
+      e.preventDefault();
+      const draggable = document.querySelector('.dragging');
+      if (!draggable) return;
+      const afterElement = getDragAfterElement(nav, e.clientX);
+      const addBtn = document.getElementById('addTabBtn');
+      nav.insertBefore(draggable, afterElement == null || afterElement === addBtn ? addBtn : afterElement);
+    };
+  }
+
+  function getDragAfterElement(container, x) {
+    const els = [...container.querySelectorAll('.tab-link:not(.dragging):not(#addTabBtn)')];
+    return els.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = x - box.left - box.width / 2;
+      return (offset < 0 && offset > closest.offset) ? { offset, element: child } : closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+  function disableEditMode() {
+    isEditMode = false;
+    const editBtn = document.getElementById('editToggleBtn');
+    editBtn.innerText = "Enter Edit Mode"; editBtn.classList.replace('btn-primary', 'btn-admin');
+    document.getElementById('saveBtn').style.display = "none";
+    document.getElementById('addTabBtn').style.display = "none";
+    document.getElementById('toolbar').style.display = "none";
+    document.getElementById('siteTitle').contentEditable = "false";
+    document.getElementById('siteTitle').classList.remove('editable');
+    document.querySelectorAll('.tab-content').forEach(c => { c.contentEditable = "false"; c.classList.remove('editable'); });
+    const nav = document.getElementById('tabNav');
+    nav.querySelectorAll('.tab-link').forEach(tab => { tab.removeAttribute('draggable'); tab.ondragstart = null; tab.ondragend = null; });
+    nav.ondragover = null;
+  }
+
+  function openTab(evt, tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+    document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+    const targetTab = document.getElementById(tabName);
+    if (targetTab) targetTab.style.display = 'block';
+    if (evt) evt.currentTarget.classList.add('active');
+    else { for (let btn of document.querySelectorAll('.tab-link')) { if (btn.innerText.replace(/\s+/g, '-') === tabName) { btn.classList.add('active'); break; } } }
+  }
+
+  document.getElementById('contentArea').addEventListener('click', function(e) {
+    if (!isEditMode) {
+      const target = e.target.closest('a');
+      if (target) { const href = target.getAttribute('href'); if (href && href.startsWith('#')) { e.preventDefault(); openTab(null, href.substring(1)); } }
+    }
+  });
+
+  function triggerAddTabModal() {
+    openModal("Create New Tab", [{ id: 'name', label: 'Tab Name', placeholder: 'e.g., Resume' }], (data) => {
+      if (!data.name) return;
+      const tabId = data.name.replace(/\s+/g, '-');
+      document.getElementById('addTabBtn').insertAdjacentHTML('beforebegin', `<button class="tab-link" onclick="openTab(event, '${tabId}')">${data.name}</button>`);
+      const newBtn = document.getElementById('addTabBtn').previousElementSibling;
+      if (isEditMode) { newBtn.draggable = true; newBtn.ondragstart = (e) => { e.target.classList.add('dragging'); }; newBtn.ondragend = (e) => { e.target.classList.remove('dragging'); }; }
+      const newContent = document.createElement('div');
+      newContent.id = tabId; newContent.className = 'tab-content editable'; newContent.contentEditable = "true"; newContent.style.display = "none";
+      newContent.innerHTML = `<h2>${data.name}</h2><p>Start typing...</p>`;
+      document.getElementById('contentArea').appendChild(newContent);
+    });
+  }
+
+  function formatText(command) { document.execCommand(command, false, null); }
+  function formatTextWithArg(command, arg) { if (arg) document.execCommand(command, false, arg); }
+
+  function triggerLinkModal() {
+    const selection = window.getSelection();
+    const selectedText = selection.toString();
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    openModal("Insert Link", [{ id: 'url', label: 'Link URL (Use #TabName for internal links)', placeholder: 'https://...' }], (data) => {
+      if (!data.url || !range) return;
+      selection.removeAllRanges(); selection.addRange(range);
+      const targetAttr = data.url.startsWith('#') ? '' : 'target="_blank"';
+      document.execCommand('insertHTML', false, `<a href="${data.url}" ${targetAttr}>${selectedText || data.url}</a>`);
+    });
+  }
+
+  function triggerImageModal() {
+    openModal("Insert Image", [
+      { id: 'url', label: 'Image URL (.jpg, .png)', placeholder: 'https://...' },
+      { id: 'size', label: 'Size (Percentage)', value: '100%' },
+      { id: 'align', label: 'Alignment', type: 'select', options: [{ text: 'Center', value: 'center' }, { text: 'Left', value: 'left' }, { text: 'Right', value: 'right' }] }
+    ], (data) => {
+      if (!data.url) return;
+      let styles = `width: ${data.size}; max-width: 100%; border-radius: 8px; margin: 15px 0; display: block;`;
+      if (data.align === 'center') styles += " margin-left: auto; margin-right: auto;";
+      if (data.align === 'left') styles += " float: left; margin-right: 20px;";
+      if (data.align === 'right') styles += " float: right; margin-left: 20px;";
+      document.execCommand('insertHTML', false, `<img src="${data.url}" style="${styles}" alt="Portfolio Image">`);
+    });
+  }
+
+  function triggerButtonModal() {
+    const selection = window.getSelection();
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const tabOptions = [{ text: "External Web Link (Type below)", value: "external" }];
+    document.querySelectorAll('.tab-link').forEach(link => {
+      if (link.id !== "addTabBtn") tabOptions.push({ text: `Go to tab: ${link.innerText}`, value: `#${link.innerText.replace(/\s+/g, '-')}` });
+    });
+    openModal("Design Custom Button", [
+      { id: 'text', label: 'Button Text', placeholder: 'e.g., Hire Me' },
+      { id: 'linkDest', label: 'Where should it go?', type: 'select', options: tabOptions },
+      { id: 'customUrl', label: 'External URL (Only if External Web Link)', placeholder: 'https://...' },
+      { id: 'bgColor', label: 'Background Color', type: 'color', value: '#111827' },
+      { id: 'font', label: 'Font Style', type: 'select', options: [{ text: 'Default (Inter)', value: "'Inter', sans-serif" }, { text: 'Arial', value: "Arial, sans-serif" }, { text: 'Georgia', value: "Georgia, serif" }] },
+      { id: 'size', label: 'Button Size', type: 'select', options: [{ text: 'Small', value: 'padding: 8px 16px; font-size: 0.85rem;' }, { text: 'Medium', value: 'padding: 12px 24px; font-size: 1rem;' }, { text: 'Large', value: 'padding: 16px 32px; font-size: 1.15rem;' }] },
+      { id: 'shape', label: 'Button Shape', type: 'select', options: [{ text: 'Rounded Rectangle', value: '8px' }, { text: 'Square', value: '0px' }, { text: 'Oval / Pill', value: '50px' }] },
+      { id: 'isBold', label: 'Make text Bold?', type: 'checkbox' },
+      { id: 'isItalic', label: 'Make text Italic?', type: 'checkbox' }
+    ], (data) => {
+      if (!data.text) return;
+      if (range) { selection.removeAllRanges(); selection.addRange(range); }
+      let finalUrl = data.linkDest === 'external' ? (data.customUrl || '#') : data.linkDest;
+      const targetAttr = finalUrl.startsWith('#') ? '' : 'target="_blank"';
+      const inlineStyles = `display: inline-block; background-color: ${data.bgColor}; color: white; text-decoration: none; border: 2px solid black; border-radius: ${data.shape}; font-family: ${data.font}; font-weight: ${data.isBold ? 'bold' : 'normal'}; font-style: ${data.isItalic ? 'italic' : 'normal'}; ${data.size} margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);`;
+      document.execCommand('insertHTML', false, `&nbsp;<a href="${finalUrl}" style="${inlineStyles}" ${targetAttr} contenteditable="false">${data.text}</a>&nbsp;`);
+    });
+  }
+
+  window.toggleView = toggleView; window.toggleTheme = toggleTheme; window.toggleEditMode = toggleEditMode;
+  window.saveWebsite = saveWebsite; window.openTab = openTab; window.triggerAddTabModal = triggerAddTabModal;
+  window.formatText = formatText; window.formatTextWithArg = formatTextWithArg;
+  window.triggerLinkModal = triggerLinkModal; window.triggerImageModal = triggerImageModal; window.triggerButtonModal = triggerButtonModal;
+</script>
+
+</body>
+</html>
